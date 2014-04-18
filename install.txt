@@ -1,0 +1,44 @@
+Install on Raspberry pi :
+-------------------------
+
+- test with linux image 2012-09-18-wheezy-raspbian 
+
+- add following packages : 
+    sudo apt-get install lighttpd php5-cgi motion nmap vim
+
+- connect a USB webcam like this one (lsusb sort) :
+    $ lsusb
+    ->  Bus 001 Device 004: ID 046d:0805 Logitech, Inc. Webcam C300
+
+- replace motion.conf in /etc/motion/ by the file in this diretcory
+    restart motion : sudo /etc/init.d/motion restart
+
+- add following text to the end of /etc/lighttpd/lighttpd.conf (for activate PHP CGI):
+
+# to add
+
+server.modules += ("mod_rewrite", "mod_fastcgi")
+
+fastcgi.server = ( ".php" => ((
+        "bin-path" => "/usr/bin/php-cgi",
+        "socket" => "/tmp/php.socket"
+)))
+
+# end
+
+    restart ligthttpd : sudo /etc/init.d/lighttpd restart
+
+- add command to send pulse on gpio interface (set opto on remote for open door)
+    cp open.py /home/pi/soft/gpio/
+
+- script "open.py" need "root" level for execution, so php script call "sudo open.py"
+  add following text to the end of /etc/sudoers for lighttpd (user www-data) can do a sudo call
+
+# to add
+
+www-data ALL=(ALL) NOPASSWD: /home/pi/soft/gpio/open.py
+    
+# end
+
+- add web site file (PHP interface for end user)
+    cp -r www/* /var/www/
